@@ -1,0 +1,6 @@
+/venv/
+/.idea/
+migrations/
+*.sqlite3
+
+settings.py

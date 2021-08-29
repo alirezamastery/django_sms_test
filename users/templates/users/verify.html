@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+
+{#  {% if messages %}#}
+{#    <ul class="messages">#}
+{#      {% for message in messages %}#}
+{#        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>#}
+{#          {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}#}
+{#          {{ message }}#}
+{#        </li>#}
+{#      {% endfor %}#}
+{#    </ul>#}
+{#  {% endif %}#}
+{% block content %}
+  {{ start_time|json_script:"time-data" }}
+  <div class="content-section">
+    <form method="POST">
+      {% csrf_token %}
+
+      <div><span id="time">
+              {% if start_time %}
+                {{ start_time }}
+              {% else %}
+                02:00
+              {% endif %}
+      </span></div>
+      <label>کد 6 رقمی
+        <input name="verify_code" type="text"/>
+        <input name="remaining_time" id="remaining_time" type="hidden" value="ok">
+      </label>
+      <div>
+        <button class="btn btn-outline-info" type="submit" onclick="get_time()">ارسال</button>
+      </div>
+    </form>
+  </div>
+
+{% endblock %}
+
+
+{% block page_script %}
+  <script>
+      function startTimer(duration, display) {
+          let timer = duration, minutes, seconds;
+          setInterval(function () {
+              minutes = parseInt(timer / 60, 10);
+              seconds = parseInt(timer % 60, 10);
+
+              minutes = minutes < 10 ? "0" + minutes : minutes;
+              seconds = seconds < 10 ? "0" + seconds : seconds;
+
+              display.textContent = minutes + ":" + seconds;
+
+              if (--timer < 0) {
+                  timer = 0;
+              }
+          }, 1000);
+      }
+
+      function get_time() {
+          document.getElementById("remaining_time").value = document.getElementById("time").innerText;
+      }
+
+      window.onload = function () {
+          var timer = 60 * 2;
+
+          const start = JSON.parse(document.getElementById('time-data').textContent);
+          if (start) {
+              const parts = start.split(":");
+              var minutes = parseInt(parts[0]);
+              var seconds = parseInt(parts[1]);
+              console.log(minutes);
+              console.log(seconds);
+              timer = minutes * 60 + seconds;
+          }
+
+          console.log('start:', start)
+          let display = document.querySelector('#time');
+          startTimer(timer, display);
+      };
+  </script>
+{% endblock %}
